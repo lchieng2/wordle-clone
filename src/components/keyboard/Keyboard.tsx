@@ -1,32 +1,49 @@
 import { KeyValue } from '../../lib/keyboard'
 import { Key } from './Key'
 import { getStatuses } from '../../lib/statuses'
-// import { useEffect } from 'react'
+import { useEffect } from 'react'
 
 type Props = {
-//     onChar: (value: string) => void
-//     onDelete: () => void
-//     onEnter: () => void
+    onChar: (value: string) => void
+    onDelete: () => void
+    onEnter: () => void
 	guesses: string[]
+	solution: string
 }
 
 // export const Keyboard = ({ onChar, onDelete, onEnter }: Props) => {
-export const Keyboard = ({ guesses }: Props) => {
-	// const tempGuesses: string[] = ['ADIEU', 'TASTY'];
-	const charStatuses = getStatuses(guesses)
+export const Keyboard = ({ onChar, onDelete, onEnter, guesses, solution }: Props) => {
+	const charStatuses = getStatuses(guesses, solution)
 
     const onClick = (value: KeyValue) => {
         if (value === 'ENTER') {
-            // onEnter()
-			console.log('Enter pressed')
+            onEnter()
         } else if (value === 'DELETE') {
-            // onDelete()
-			console.log('Delete pressed')
+            onDelete()
         } else {
-            //onChar(value)
-			console.log(value + ' pressed')
+            onChar(value)
         }
     }
+
+	useEffect(() => {
+		const listener =(e: KeyboardEvent) => {
+			if (e.code === 'Enter') {
+				onEnter()
+			} else if (e.code === 'Backspace') {
+				onDelete()
+			} else {
+				const key = e.key.toUpperCase()
+				if (key.length === 1 && key >= 'A' && key <= 'Z') {
+					onChar(key)
+				}
+			}
+		}
+		window.addEventListener('keyup', listener)
+		return () => {
+			window.removeEventListener('keyup', listener)
+		}
+	}, [onEnter, onDelete, onChar])
+	
 	return (
 		<div>
 		  <div className="flex justify-center mb-1">
